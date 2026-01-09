@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+build/
+.next/
+.nuxt/
+public/dist/
+out/
+
+# Environment variables
+.env*
+
+# Logs
+*.log
+logs/
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Testing
+*.test.js
+*.spec.js
+
+# Next.js
+.next/
+out/
+.cache/
+.output/
+artifacts/
+
+# TypeScript
+*.tsbuildinfo
+*.bak
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

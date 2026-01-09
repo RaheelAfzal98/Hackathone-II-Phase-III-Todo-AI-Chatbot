@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+build/
+.next/
+.nuxt/
+public/dist/
+out/
+
+# Logs
+*.log
+logs/
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Compiled JavaScript
+*.js.map
+*.ts.map
+
+# Next.js
+.next/
+out/
+.cache/
+.output/
+artifacts/
+
+# TypeScript
+*.tsbuildinfo
+*.bak

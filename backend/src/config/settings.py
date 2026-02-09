@@ -27,8 +27,15 @@ class Settings(BaseSettings):
     # Neon PostgreSQL settings
     NEON_DB_URL: str
 
+    # OpenRouter API settings
+    OPEN_ROUTER_API_KEY: Optional[str] = None
+
+    # OpenAI API settings
+    OPENAI_API_KEY: Optional[str] = None
+
     class Config:
         env_file = ".env"
+        extra = "allow"  # Allow extra fields to prevent validation errors
 
 
 settings = Settings()

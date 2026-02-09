@@ -1,0 +1,246 @@
+openapi: 3.0.0
+info:
+  title: AI Chatbot Enhanced API with Error Handling
+  version: 1.1.0
+  description: Enhanced API for AI-powered conversational task management with comprehensive error handling
+servers:
+  - url: http://localhost:8000
+    description: Development server
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Process a chat message and return AI response with error handling
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The authenticated user's ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                conversation_id:
+                  type: integer
+                  description: Existing conversation ID (optional, creates new if omitted)
+                  example: 123
+                message:
+                  type: string
+                  description: Natural language user input
+                  example: "Mark task 999 as complete"
+      responses:
+        '200':
+          description: Successful response from AI agent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation_id:
+                    type: integer
+                    description: Conversation ID (new or existing)
+                    example: 123
+                  response:
+                    type: string
+                    description: AI-generated response
+                    example: "I couldn't find a task with ID 999. Could you please check the task number and try again?"
+                  tool_calls:
+                    type: array
+                    description: MCP tools that were invoked
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the tool called
+                          example: "list_tasks"
+                        arguments:
+                          type: object
+                          description: Arguments passed to the tool
+                          example: {"user_id": "user123"}
+                  tool_responses:
+                    type: array
+                    description: Responses from the MCP tools
+                    items:
+                      type: object
+                      description: Tool response object
+                  error_details:
+                    type: object
+                    description: Details about any errors that occurred during processing
+                    properties:
+                      type:
+                        type: string
+                        description: Type of error that occurred
+                        enum: [task_not_found, invalid_input, unauthorized, tool_failure]
+                        example: "task_not_found"
+                      user_message:
+                        type: string
+                        description: User-friendly error message
+                        example: "I couldn't find a task with that ID. Please check the task number and try again."
+                      severity:
+                        type: string
+                        description: Severity level of the error
+                        enum: [low, medium, high, critical]
+                        example: "medium"
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - user lacks permission for requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/{user_id}/errors:
+    get:
+      summary: Retrieve error logs for a user (admin only)
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The user's ID
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of error logs to return
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          description: Number of error logs to skip
+          schema:
+            type: integer
+            default: 0
+        - name: error_type
+          in: query
+          required: false
+          description: Filter by specific error type
+          schema:
+            type: string
+            enum: [task_not_found, invalid_input, unauthorized, tool_failure]
+      responses:
+        '200':
+          description: List of error logs for the user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ErrorCondition'
+                  total_count:
+                    type: integer
+                    description: Total number of error logs matching the criteria
+                  limit:
+                    type: integer
+                    description: Number of error logs returned
+                  offset:
+                    type: integer
+                    description: Number of error logs skipped
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - user lacks admin privileges
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid input provided"
+        error_code:
+          type: string
+          description: Machine-readable error code
+          example: "INVALID_INPUT"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the error occurred
+          example: "2023-10-20T10:00:00Z"
+    ErrorCondition:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the error condition
+          example: 123
+        error_type:
+          type: string
+          description: Type of error that occurred
+          enum: [task_not_found, invalid_input, unauthorized, tool_failure]
+          example: "task_not_found"
+        error_message:
+          type: string
+          description: Technical error description
+          example: "Task with ID 999 not found for user user123"
+        user_message:
+          type: string
+          description: User-friendly error message
+          example: "I couldn't find a task with that ID. Please check the task number and try again."
+        timestamp:
+          type: string
+          format: date-time
+          description: When the error occurred
+          example: "2023-10-20T10:00:00Z"
+        conversation_id:
+          type: integer
+          description: Associated conversation ID
+          example: 456
+        message_id:
+          type: integer
+          description: Associated message ID
+          example: 789
+        severity_level:
+          type: string
+          description: Severity level of the error
+          enum: [low, medium, high, critical]
+          example: "medium"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

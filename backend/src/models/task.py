@@ -17,12 +17,37 @@ class TaskBaseFields:
     completed: bool = Field(default=False)
     priority: PriorityEnum = Field(default=PriorityEnum.medium)
 
+def get_current_time():
+    return datetime.utcnow()
+
+
+def get_uuid():
+    return str(uuid.uuid4())
+
+
+from sqlalchemy import Column, String, DateTime, Boolean
+from sqlalchemy.sql import func
+
+
 class Task(TaskBaseFields, Base, table=True):
     """Task model representing a user's todo item."""
     __tablename__ = "tasks"
 
-    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    id: str = Field(default=get_uuid, sa_column=Column(String, primary_key=True))
     user_id: str = Field(nullable=False)  # Foreign key to user
+    created_at: datetime = Field(default=get_current_time, sa_column=Column(DateTime(timezone=True), server_default=func.now()))
+    updated_at: datetime = Field(default=get_current_time, sa_column=Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()))
+
+    def __init__(self, **kwargs):
+        # Generate ID if not provided
+        if 'id' not in kwargs or not kwargs.get('id'):
+            kwargs['id'] = get_uuid()
+        # Set timestamps if not provided
+        if 'created_at' not in kwargs or not kwargs.get('created_at'):
+            kwargs['created_at'] = get_current_time()
+        if 'updated_at' not in kwargs or not kwargs.get('updated_at'):
+            kwargs['updated_at'] = get_current_time()
+        super().__init__(**kwargs)
 
 class TaskRead(TaskBaseFields, Base):
     """Schema for reading task data."""

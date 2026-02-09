@@ -13,10 +13,10 @@ const nextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3500',
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
     NEXT_PUBLIC_DAPR_HTTP_PORT: process.env.NEXT_PUBLIC_DAPR_HTTP_PORT || '3500',
     NEXT_PUBLIC_DAPR_GRPC_PORT: process.env.NEXT_PUBLIC_DAPR_GRPC_PORT || '50001',
-    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || 'http://localhost:3001',
+    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || 'http://localhost:8000',
   },
 };
 

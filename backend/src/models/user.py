@@ -5,6 +5,14 @@ import uuid
 from pydantic import BaseModel, EmailStr
 
 
+def get_current_time():
+    return datetime.utcnow()
+
+
+def get_uuid():
+    return str(uuid.uuid4())
+
+
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, nullable=False)
     name: str = Field(nullable=False, min_length=1, max_length=100)
@@ -12,10 +20,10 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     __tablename__ = "users"  # Use 'users' instead of 'user' to avoid PostgreSQL reserved keyword
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    id: str = Field(default_factory=get_uuid, primary_key=True)
     hashed_password: str = Field(nullable=False)
-    created_at: datetime = Field(sa_column=Column(DateTime(timezone=True), default=datetime.utcnow))
-    updated_at: datetime = Field(sa_column=Column(DateTime(timezone=True), default=datetime.utcnow))
+    created_at: datetime = Field(default_factory=get_current_time)
+    updated_at: datetime = Field(default_factory=get_current_time)
 
 
 class UserCreate(UserBase):

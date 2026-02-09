@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: AI Chatbot API
+  version: 1.0.0
+  description: API for AI-powered conversational task management
+servers:
+  - url: http://localhost:8000
+    description: Development server
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Process a chat message and return AI response
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The authenticated user's ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                conversation_id:
+                  type: integer
+                  description: Existing conversation ID (optional, creates new if omitted)
+                  example: 123
+                message:
+                  type: string
+                  description: Natural language user input
+                  example: "Add a task to buy groceries"
+      responses:
+        '200':
+          description: Successful response from AI agent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation_id:
+                    type: integer
+                    description: Conversation ID (new or existing)
+                    example: 123
+                  response:
+                    type: string
+                    description: AI-generated response
+                    example: "I've added the task 'buy groceries' for you."
+                  tool_calls:
+                    type: array
+                    description: MCP tools that were invoked
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the tool called
+                          example: "add_task"
+                        arguments:
+                          type: object
+                          description: Arguments passed to the tool
+                          example: {"user_id": "user123", "title": "buy groceries"}
+                  tool_responses:
+                    type: array
+                    description: Responses from the MCP tools
+                    items:
+                      type: object
+                      description: Tool response object
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

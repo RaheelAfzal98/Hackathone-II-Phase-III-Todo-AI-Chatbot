@@ -7,6 +7,7 @@ import logging
 # Import models to ensure they are registered with SQLModel's metadata
 from ..models import task  # noqa: F401
 from ..models import user  # noqa: F401
+from ..models import conversation, message  # noqa: F401
 
 
 # Configure logging
